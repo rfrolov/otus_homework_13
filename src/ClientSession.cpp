@@ -1,9 +1,9 @@
 #include "ClientSession.h"
 #include "JoinServer.h"
 
-
 ClientSession::ClientSession(ba::io_service &service, JoinServer &server) : m_socket{service}, m_started{false},
-                                                                            m_server{server}, m_query_parser{} {
+                                                                            m_server{server}, m_query_parser{},
+                                                                            m_read_buffer{} {
     std::cout << "session create\n";
 }
 
@@ -13,7 +13,7 @@ ClientSession::socket_t &ClientSession::socket() {
 
 void ClientSession::start() {
     m_started = true;
-    do_start();
+    do_read();
 }
 
 void ClientSession::stop() {
@@ -24,13 +24,13 @@ void ClientSession::stop() {
 
 }
 
-void ClientSession::do_start() {
-    m_socket.async_read_some(ba::buffer(m_read_buffer), [this](const boost::system::error_code &err, size_t bytes) {
+void ClientSession::do_read() {
+    ba::async_read_until(m_socket, m_read_buffer, '\n', [this](const boost::system::error_code &err, size_t bytes) {
         on_read(err, bytes);
     });
 }
 
-void ClientSession::on_read(const boost::system::error_code &err, size_t data_size) {
+void ClientSession::on_read(const boost::system::error_code &err, size_t /*data_size*/) {
     if (!m_started) {
         return;
     }
@@ -40,7 +40,11 @@ void ClientSession::on_read(const boost::system::error_code &err, size_t data_si
         return;
     }
 
-    m_query_parser.add(std::move(std::string(&m_read_buffer[0], &m_read_buffer[data_size])));
+    std::istream is(&m_read_buffer);
+    std::string data;
+    std::getline(is, data);
 
-    do_start();
+    m_query_parser.parse(data);
+
+    do_read();
 }

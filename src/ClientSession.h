@@ -4,6 +4,8 @@
 #include <functional>
 #include "QueryParser.h"
 
+#include <iostream>
+
 namespace ba = boost::asio;
 
 struct JoinServer;
@@ -27,13 +29,13 @@ struct ClientSession : std::enable_shared_from_this<ClientSession> {
     void stop();
 
 private:
-    void do_start();
+    void do_read();
+
     void on_read(const boost::system::error_code &err, size_t data_size);
 
     socket_t m_socket;
-    static const size_t m_read_buffer_size{10};
-    char m_read_buffer[m_read_buffer_size];
     bool m_started;
     JoinServer &m_server;
     QueryParser m_query_parser;
+    ba::streambuf m_read_buffer;
 };
