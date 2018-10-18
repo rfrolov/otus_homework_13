@@ -2,14 +2,14 @@ cmake_minimum_required(VERSION 3.6)
 
 project(join_server VERSION 1.0.$ENV{TRAVIS_BUILD_NUMBER})
 
-#find_package(Threads REQUIRED)
-#find_package(Boost REQUIRED)
-#find_package(Boost COMPONENTS system REQUIRED)
+find_package(Threads REQUIRED)
+find_package(Boost REQUIRED)
+find_package(Boost COMPONENTS system REQUIRED)
 
 file(GLOB_RECURSE SOURCES *.cpp *.h)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
-#target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/src)
+target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/src)
 
 set_target_properties(
         ${PROJECT_NAME} PROPERTIES
@@ -17,7 +17,7 @@ set_target_properties(
         CXX_STANDARD_REQUIRED ON
 )
 
-#target_link_libraries(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARIES})
 
 
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
@@ -26,9 +26,9 @@ set(CPACK_GENERATOR DEB)
 set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
 set(CPACK_PACKAGE_VENDOR "rfrolov")
 set(CPACK_PACKAGE_CONTACT rfrolov@engineer.com)
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Otus homework 12")
-set(CPACK_PACKAGE_DESCRIPTION_FILE "${PROJECT_SOURCE_DIR}/../README.md")
-set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/../LICENSE")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Otus homework 13")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_SOURCE_DIR}/README.md")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
 set(CPACK_PACKAGE_VERSION_BUILD $ENV{TRAVIS_BUILD_NUMBER})
 set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
 

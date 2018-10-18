@@ -1,12 +1,14 @@
 #pragma once
 
 #include <cstdint>
+#include <cstdlib>
+#include <string>
 
 struct ParseCmdLine {
     using port_t = uint16_t;
 
     explicit ParseCmdLine(int argc, char *argv[]) {
-        decltype(strtoll(nullptr, nullptr, 0)) port{0};
+        long long port{0};
 
         if (argc != 2) {
             m_error = "Wrong number of arguments";
