@@ -1,14 +1,12 @@
 #pragma once
 
 #include <string>
+#include <tuple>
+#include <future>
+#include "DataBase.h"
 
-struct QueryParser {
+namespace query_parser {
+    using future_result_t = DataBase::future_result_t;
 
-    std::string parse(std::string data);
-
-private:
-    void insert(std::string table_name, int id, std::string name);
-    void truncate(std::string table_name);
-    void intersection();
-    void symmetric_difference();
+    std::string parse(std::string data, DataBase::future_result_t &result);
 };

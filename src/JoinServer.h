@@ -25,9 +25,9 @@ private:
     void do_accept(client_t client_session, const boost::system::error_code &err);
     void do_stop(int signal_number);
 
-    ba::io_service m_service;
+    ba::io_service        m_service;
     ba::ip::tcp::acceptor m_acceptor;
-    port_t m_port;
-    std::list<client_t> m_client_sessions;
+    port_t                m_port;
+    std::list<client_t>   m_client_sessions;
 };
 

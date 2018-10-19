@@ -1,8 +1,11 @@
 #include <iostream>
 #include "ParseCmdLine.h"
 #include "JoinServer.h"
+#include "DataBase.h"
+
 
 int main(int argc, char *argv[]) {
+    DataBase::getInstance().init();
 
     ParseCmdLine cmdLine(argc, argv);
     if (!cmdLine.is_valid()) {

@@ -1,9 +1,11 @@
 #include "JoinServer.h"
 #include "ClientSession.h"
 
-JoinServer::JoinServer(port_t port)
-        : m_service{}, m_acceptor{m_service, ba::ip::tcp::endpoint(ba::ip::tcp::v4(), port)}, m_port{port},
-          m_client_sessions{} {
+JoinServer::JoinServer(port_t port) :
+        m_service{}
+        , m_acceptor{m_service, ba::ip::tcp::endpoint(ba::ip::tcp::v4(), port)}
+        , m_port{port}
+        , m_client_sessions{} {
 }
 
 void JoinServer::run() {

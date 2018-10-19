@@ -33,9 +33,8 @@ private:
 
     void on_read(const boost::system::error_code &err, size_t data_size);
 
-    socket_t m_socket;
-    bool m_started;
-    JoinServer &m_server;
-    QueryParser m_query_parser;
+    socket_t      m_socket;
+    bool          m_started;
+    JoinServer    &m_server;
     ba::streambuf m_read_buffer;
 };

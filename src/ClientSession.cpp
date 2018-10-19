@@ -1,9 +1,11 @@
 #include "ClientSession.h"
 #include "JoinServer.h"
 
-ClientSession::ClientSession(ba::io_service &service, JoinServer &server) : m_socket{service}, m_started{false},
-                                                                            m_server{server}, m_query_parser{},
-                                                                            m_read_buffer{} {
+ClientSession::ClientSession(ba::io_service &service, JoinServer &server) :
+        m_socket{service}
+        , m_started{false}
+        , m_server{server}
+        , m_read_buffer{} {
     std::cout << "session create\n";
 }
 
@@ -41,10 +43,20 @@ void ClientSession::on_read(const boost::system::error_code &err, size_t /*data_
     }
 
     std::istream is(&m_read_buffer);
-    std::string data;
+    std::string  data;
     std::getline(is, data);
 
-    m_query_parser.parse(data);
+    query_parser::future_result_t db_future_result{};
 
-    do_read();
+    auto parser_result = query_parser::parse(data, db_future_result);
+    if (!parser_result.empty()) {
+        std::cout << "ERR " << parser_result << std::endl;
+    } else {
+        // TODO: Запилить асинхронное ожидание результата.
+        bool        is_error;
+        std::string result;
+        std::tie(is_error, result) = db_future_result.get();
+        std::cout << (is_error ? "ERR" : "OK") << (result.empty() ? "" : " " + result) << std::endl;
+    }
+    do_read(); // TODO: Сначала дождаться результата.
 }
