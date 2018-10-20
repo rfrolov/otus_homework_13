@@ -43,10 +43,10 @@ namespace query_parser {
             result = DataBase::getInstance().truncate(params.at(1));
             return {};
         } else if (cmd == "INTERSECTION") {
-            result = DataBase::getInstance().intersection(std::vector<std::string>{"A", "B"});
+            result = DataBase::getInstance().intersection("A", "B");
             return {};
         } else if (cmd == "SYMMETRIC_DIFFERENCE") {
-            result = DataBase::getInstance().symmetric_difference(std::vector<std::string>{"A", "B"});
+            result = DataBase::getInstance().symmetric_difference("A", "B");
             return {};
         }
 

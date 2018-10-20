@@ -1,4 +1,7 @@
+#include <algorithm>
 #include "DataBase.h"
+#include <set>
+#include <map>
 
 void DataBase::init() {
     m_db.emplace("A", table_t{});
@@ -43,12 +46,15 @@ DataBase::future_result_t DataBase::truncate(std::string table_name) {
     });
 }
 
-DataBase::future_result_t DataBase::intersection(std::vector<std::string> table_names) {
-    return m_thread_pool.enqueue([this, table_names] {
+template<typename F>
+auto DataBase::match(F func, const std::string &table1_name, const std::string &table2_name) {
+    return m_thread_pool.enqueue([this, table1_name, table2_name, func] {
         std::unique_lock<std::mutex> lock(m_mutex);
 
-        std::vector<table_t> tables{};
-        for (const auto      &name:table_names) {
+        std::vector<std::string> tables_name{table1_name, table2_name};
+        std::vector<table_t>     tables{};
+
+        for (const auto &name:tables_name) {
             auto db_it = m_db.find(name);
             if (db_it == m_db.cend()) {
                 return std::make_tuple(true, std::string{"Нет такой таблицы: "} + name);
@@ -56,25 +62,48 @@ DataBase::future_result_t DataBase::intersection(std::vector<std::string> table_
             tables.emplace_back(db_it->second);
         }
 
-        // TODO:
-        return std::make_tuple(false, std::string{""});
+        return std::make_tuple<bool, std::string>(false, func(tables[0], tables[1]));
     });
 }
 
-DataBase::future_result_t DataBase::symmetric_difference(std::vector<std::string> table_names) {
-    return m_thread_pool.enqueue([this, &table_names] {
-        std::unique_lock<std::mutex> lock(m_mutex);
+template <int N> auto DataBase::match(const table_t &table1, const table_t &table2) {
+    std::multimap<int, std::string> multimap{};
+    std::set<int>                   set;
 
-        std::vector<table_t> tables{};
-        for (const auto      &name:table_names) {
-            auto db_it = m_db.find(name);
-            if (db_it == m_db.cend()) {
-                return std::make_tuple(true, std::string{"Нет такой таблицы: "} + name);
+    for (const auto &it:table1) {
+        set.insert(it.first);
+        multimap.insert(it);
+    }
+
+    for (const auto &it:table2) {
+        set.insert(it.first);
+        multimap.insert(it);
+    }
+
+    std::string     result{};
+    for (const auto &key:set) {
+        if (multimap.count(key) == N) {
+            auto range = multimap.equal_range(key);
+
+            result += std::to_string(range.first->first) + ",";
+            for (auto it = range.first; it != range.second; ++it) {
+                result += it->second + (std::next(it) == range.second ? "" : ",");
             }
-            tables.emplace_back(db_it->second);
+            result += "\n";
         }
-
-        // TODO:
-        return std::make_tuple(false, std::string{""});
-    });
+    }
+    return result;
 }
+
+DataBase::future_result_t DataBase::intersection(const std::string &table1_name, const std::string &table2_name) {
+    return match([this](const table_t &table1, const table_t &table2) { return match<2>(table1, table2); },
+                 table1_name, table2_name);
+}
+
+DataBase::future_result_t
+DataBase::symmetric_difference(const std::string &table1_name, const std::string &table2_name) {
+    return match([this](const table_t &table1, const table_t &table2) { return match<1>(table1, table2); },
+                 table1_name, table2_name);
+}
+
+

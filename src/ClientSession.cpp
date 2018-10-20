@@ -6,7 +6,6 @@ ClientSession::ClientSession(ba::io_service &service, JoinServer &server) :
         , m_started{false}
         , m_server{server}
         , m_read_buffer{} {
-    std::cout << "session create\n";
 }
 
 ClientSession::socket_t &ClientSession::socket() {
@@ -46,17 +45,37 @@ void ClientSession::on_read(const boost::system::error_code &err, size_t /*data_
     std::string  data;
     std::getline(is, data);
 
-    query_parser::future_result_t db_future_result{};
-
-    auto parser_result = query_parser::parse(data, db_future_result);
+    auto parser_result = query_parser::parse(data, m_future_result);
     if (!parser_result.empty()) {
-        std::cout << "ERR " << parser_result << std::endl;
+        do_write("ERR " + parser_result + "\n");
     } else {
-        // TODO: Запилить асинхронное ожидание результата.
+        do_check_result();
+    }
+}
+
+void ClientSession::do_check_result() {
+    auto &service = m_socket.get_io_service();
+    service.post([this] { on_check_result(); });
+}
+
+void ClientSession::on_check_result() {
+
+    if (m_future_result.wait_for(std::chrono::microseconds(0)) == std::future_status::ready) {
         bool        is_error;
         std::string result;
-        std::tie(is_error, result) = db_future_result.get();
-        std::cout << (is_error ? "ERR" : "OK") << (result.empty() ? "" : " " + result) << std::endl;
+        std::tie(is_error, result) = m_future_result.get();
+        if (is_error) {
+            do_write("ERR" + (result.empty() ? "" : " " + result) + "\n");
+        } else {
+            do_write(result + "OK" + "\n");
+        }
+
+        do_read();
+    } else {
+        do_check_result();
     }
-    do_read(); // TODO: Сначала дождаться результата.
+}
+void ClientSession::do_write(std::string result) {
+    std::vector<boost::asio::const_buffer> buffers{boost::asio::buffer(result)};
+    m_socket.async_write_some(buffers, [](boost::system::error_code /*error*/, std::size_t /*bytes*/){});
 }

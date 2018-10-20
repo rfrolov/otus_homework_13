@@ -20,8 +20,6 @@ struct ClientSession : std::enable_shared_from_this<ClientSession> {
 
     explicit ClientSession(ba::io_service &service, JoinServer &server);
 
-    ~ClientSession() { std::cout << "session terminate\n"; }
-
     socket_t &socket();
 
     void start();
@@ -29,12 +27,18 @@ struct ClientSession : std::enable_shared_from_this<ClientSession> {
     void stop();
 
 private:
+    using future_result_t = query_parser::future_result_t;
+
     void do_read();
+    void do_check_result();
+    void do_write(std::string result);
 
     void on_read(const boost::system::error_code &err, size_t data_size);
+    void on_check_result();
 
-    socket_t      m_socket;
-    bool          m_started;
-    JoinServer    &m_server;
-    ba::streambuf m_read_buffer;
+    socket_t        m_socket;
+    bool            m_started;
+    JoinServer      &m_server;
+    ba::streambuf   m_read_buffer;
+    future_result_t m_future_result;
 };

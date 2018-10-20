@@ -20,19 +20,21 @@ struct DataBase {
 
     future_result_t insert(std::string table_name, int id, std::string name);
     future_result_t truncate(std::string table_name);
-    future_result_t intersection(std::vector<std::string> table_names);
-    future_result_t symmetric_difference(std::vector<std::string> table_names);
+    future_result_t intersection(const std::string &table1_name, const std::string &table2_name);
+    future_result_t symmetric_difference(const std::string &table1_name, const std::string &table2_name);
 
 private:
-    DataBase() = default;
-
-    ThreadPool m_thread_pool{std::thread::hardware_concurrency() ? std::thread::hardware_concurrency() : 1};
-
-    std::mutex m_mutex{};
-
     using table_t = std::unordered_map<int, std::string>;
     using db_t    = std::unordered_map<std::string, table_t>;
 
-    db_t m_db{};
+    DataBase() = default;
+
+    template <typename F> auto match(F func, const std::string &table1_name, const std::string &table2_name);
+    template <int N> auto match(const table_t &table1, const table_t &table2);
+
+
+    ThreadPool m_thread_pool{std::thread::hardware_concurrency() ? std::thread::hardware_concurrency() : 1};
+    std::mutex m_mutex{};
+    db_t       m_db{};
 };
 
