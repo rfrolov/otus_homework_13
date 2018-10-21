@@ -75,7 +75,8 @@ void ClientSession::on_check_result() {
         do_check_result();
     }
 }
+
 void ClientSession::do_write(std::string result) {
     std::vector<boost::asio::const_buffer> buffers{boost::asio::buffer(result)};
-    m_socket.async_write_some(buffers, [](boost::system::error_code /*error*/, std::size_t /*bytes*/){});
+    m_socket.async_write_some(buffers, [](boost::system::error_code /*error*/, std::size_t /*bytes*/) {});
 }

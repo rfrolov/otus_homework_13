@@ -11,13 +11,13 @@ struct ParseCmdLine {
         long long port{0};
 
         if (argc != 2) {
-            m_error = "Wrong number of arguments";
+            m_error = "Неверное число аргументов";
             return;
         }
 
         port = strtoll(argv[1], nullptr, 0);
         if (port < 1 || port > 65535) {
-            m_error = "Wrong argument: port";
+            m_error = "Неверный аргумент: port";
             return;
         }
 

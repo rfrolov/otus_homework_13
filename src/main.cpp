@@ -1,8 +1,7 @@
-#include <iostream>
 #include "ParseCmdLine.h"
 #include "JoinServer.h"
 #include "DataBase.h"
-
+#include <iostream>
 
 int main(int argc, char *argv[]) {
     DataBase::getInstance().init();

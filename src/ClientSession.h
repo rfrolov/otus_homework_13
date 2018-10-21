@@ -4,8 +4,6 @@
 #include <functional>
 #include "QueryParser.h"
 
-#include <iostream>
-
 namespace ba = boost::asio;
 
 struct JoinServer;

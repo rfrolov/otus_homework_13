@@ -2,6 +2,7 @@
 #include "DataBase.h"
 #include <set>
 #include <map>
+#include <unordered_set>
 
 void DataBase::init() {
     m_db.emplace("A", table_t{});
@@ -62,33 +63,34 @@ auto DataBase::match(F func, const std::string &table1_name, const std::string &
             tables.emplace_back(db_it->second);
         }
 
-        return std::make_tuple<bool, std::string>(false, func(tables[0], tables[1]));
+        return std::make_tuple<bool, std::string>(false, func(tables));
     });
 }
 
-template <int N> auto DataBase::match(const table_t &table1, const table_t &table2) {
-    std::multimap<int, std::string> multimap{};
-    std::set<int>                   set;
+template<int N>
+auto DataBase::match(const std::vector<table_t> &tables) {
+    std::set<int>                set{};
+    std::unordered_multiset<int> multiset{};
 
-    for (const auto &it:table1) {
-        set.insert(it.first);
-        multimap.insert(it);
+    for (const auto &table: tables) {
+        for (const auto &it:table) {
+            set.insert(it.first);
+            multiset.insert(it.first);
+        }
     }
 
-    for (const auto &it:table2) {
-        set.insert(it.first);
-        multimap.insert(it);
-    }
+    std::string result{};
 
-    std::string     result{};
     for (const auto &key:set) {
-        if (multimap.count(key) == N) {
-            auto range = multimap.equal_range(key);
+        if (multiset.count(key) == N) {
+            result += std::to_string(key) + ",";
 
-            result += std::to_string(range.first->first) + ",";
-            for (auto it = range.first; it != range.second; ++it) {
-                result += it->second + (std::next(it) == range.second ? "" : ",");
+            for (const auto &table: tables) {
+                auto it    = table.find(key);
+                auto value = (it == table.cend()) ? "" : it->second;
+                result += value + ((&table == &tables.back()) ? "" : ",");
             }
+
             result += "\n";
         }
     }
@@ -96,14 +98,12 @@ template <int N> auto DataBase::match(const table_t &table1, const table_t &tabl
 }
 
 DataBase::future_result_t DataBase::intersection(const std::string &table1_name, const std::string &table2_name) {
-    return match([this](const table_t &table1, const table_t &table2) { return match<2>(table1, table2); },
+    return match([this](const std::vector<table_t> &tables) { return match<2>(tables); },
                  table1_name, table2_name);
 }
 
 DataBase::future_result_t
 DataBase::symmetric_difference(const std::string &table1_name, const std::string &table2_name) {
-    return match([this](const table_t &table1, const table_t &table2) { return match<1>(table1, table2); },
+    return match([this](const std::vector<table_t> &tables) { return match<1>(tables); },
                  table1_name, table2_name);
 }
-
-

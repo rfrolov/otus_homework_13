@@ -29,8 +29,11 @@ private:
 
     DataBase() = default;
 
-    template <typename F> auto match(F func, const std::string &table1_name, const std::string &table2_name);
-    template <int N> auto match(const table_t &table1, const table_t &table2);
+    template<typename F>
+    auto match(F func, const std::string &table1_name, const std::string &table2_name);
+
+    template<int N>
+    auto match(const std::vector<table_t> &tables);
 
 
     ThreadPool m_thread_pool{std::thread::hardware_concurrency() ? std::thread::hardware_concurrency() : 1};
