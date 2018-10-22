@@ -1,0 +1,22 @@
+dist: trusty
+language: cpp
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-7
+      - g++-7
+      - libboost-all-dev
+script:
+  - export CC=gcc-7
+  - export CXX=g++-7
+  - cmake .
+  - cmake --build .
+  - cmake --build . --target test
+  - cmake --build . --target package
+deploy:
+  - provider: script
+    skip_cleanup: true
+    script:
+    - curl -T join_server-1.0.$TRAVIS_BUILD_NUMBER-Linux.deb -urfrolov:$BINTRAY_API_KEY "https://api.bintray.com/content/rfrolov/otus/otus_homework_13/$TRAVIS_BUILD_NUMBER/join_server-1.0.$TRAVIS_BUILD_NUMBER-Linux.deb;deb_distribution=trusty;deb_component=main;deb_architecture=amd64;publish=1"
