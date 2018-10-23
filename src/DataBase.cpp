@@ -9,7 +9,7 @@ void DataBase::init() {
     m_db.emplace("B", table_t{});
 }
 
-DataBase::future_result_t DataBase::insert(std::string table_name, int id, std::string name) {
+DataBase::future_result_t DataBase::insert(std::string &table_name, int id, std::string &name) {
 
     return m_thread_pool.enqueue([this, table_name, id, name] {
         std::unique_lock<std::mutex> lock(m_mutex);
@@ -32,7 +32,7 @@ DataBase::future_result_t DataBase::insert(std::string table_name, int id, std::
     });
 }
 
-DataBase::future_result_t DataBase::truncate(std::string table_name) {
+DataBase::future_result_t DataBase::truncate(std::string &table_name) {
     return m_thread_pool.enqueue([this, table_name] {
         std::unique_lock<std::mutex> lock(m_mutex);
 

@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <string>
+#include <algorithm>
 
 struct ParseCmdLine {
     using port_t = uint16_t;
@@ -15,7 +16,10 @@ struct ParseCmdLine {
             return;
         }
 
-        port = strtoll(argv[1], nullptr, 0);
+        std::string str_port_arg = argv[1];
+        if(std::all_of(str_port_arg.begin(), str_port_arg.end(), ::isdigit)) {
+            port = strtoll(argv[1], nullptr, 0);
+        }
         if (port < 1 || port > 65535) {
             m_error = "Неверный аргумент: port";
             return;

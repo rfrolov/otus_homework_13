@@ -18,8 +18,8 @@ struct DataBase {
 
     void init();
 
-    future_result_t insert(std::string table_name, int id, std::string name);
-    future_result_t truncate(std::string table_name);
+    future_result_t insert(std::string &table_name, int id, std::string &name);
+    future_result_t truncate(std::string &table_name);
     future_result_t intersection(const std::string &table1_name, const std::string &table2_name);
     future_result_t symmetric_difference(const std::string &table1_name, const std::string &table2_name);
 

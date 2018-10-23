@@ -28,11 +28,9 @@ namespace query_parser {
             }
 
             auto id = strtoll(id_str.c_str(), nullptr, 0);
-
             if (id > std::numeric_limits<int>::max()) {
                 return "Неверный формат: id должно быть int";
             }
-
             result = DataBase::getInstance().insert(params.at(1), static_cast<int>(id), params.at(3));
             return {};
         } else if (cmd == "TRUNCATE") {
@@ -42,9 +40,15 @@ namespace query_parser {
             result = DataBase::getInstance().truncate(params.at(1));
             return {};
         } else if (cmd == "INTERSECTION") {
+            if (params.size() != 1) {
+                return "Неверный формат: неверное число параметров";
+            }
             result = DataBase::getInstance().intersection("A", "B");
             return {};
         } else if (cmd == "SYMMETRIC_DIFFERENCE") {
+            if (params.size() != 1) {
+                return "Неверный формат: неверное число параметров";
+            }
             result = DataBase::getInstance().symmetric_difference("A", "B");
             return {};
         }
