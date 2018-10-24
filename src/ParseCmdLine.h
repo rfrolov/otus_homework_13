@@ -12,7 +12,7 @@ struct ParseCmdLine {
         long long port{0};
 
         if (argc != 2) {
-            m_error = "Неверное число аргументов";
+            m_error = "Неверное число аргументов. Ожидается один параметр: <port> (1..65535)";
             return;
         }
 

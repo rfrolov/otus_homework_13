@@ -41,7 +41,7 @@ DataBase::future_result_t DataBase::truncate(std::string &table_name) {
             return std::make_tuple(true, std::string{"Нет такой таблицы: "} + table_name);
         }
 
-        m_db.erase(db_it);
+        db_it->second.clear();
 
         return std::make_tuple(false, std::string{""});
     });

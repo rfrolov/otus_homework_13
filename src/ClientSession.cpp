@@ -1,18 +1,18 @@
 #include "ClientSession.h"
 #include "JoinServer.h"
 
-ClientSession::ClientSession(ba::io_service &service, JoinServer &server) :
-        m_socket{service}
-        , m_started{false}
-        , m_server{server}
-        , m_read_buffer{} {
+ClientSession::ClientSession(socket_t socket) :
+        m_started{false}
+        , m_read_buffer{}
+        , m_socket{std::move(socket)} {
 }
 
-ClientSession::socket_t &ClientSession::socket() {
-    return m_socket;
+ClientSession::~ClientSession() {
+    stop();
 }
 
 void ClientSession::start() {
+    m_self = shared_from_this();
     m_started = true;
     do_read();
 }
@@ -21,8 +21,7 @@ void ClientSession::stop() {
     if (!m_started) return;
     m_started = false;
     m_socket.close();
-    m_server.remove_client_session(shared_from_this());
-
+    m_self.reset();
 }
 
 void ClientSession::do_read() {

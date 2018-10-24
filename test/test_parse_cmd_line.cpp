@@ -27,7 +27,7 @@ TEST(parse_cmd_line, argc_invalid) {
 
     ParseCmdLine parser{argc, argv};
     EXPECT_FALSE(parser.is_valid());
-    EXPECT_EQ(std::string{"Неверное число аргументов"}, parser.error());
+    EXPECT_EQ(std::string{"Неверное число аргументов. Ожидается один параметр: <port> (1..65535)"}, parser.error());
 }
 
 TEST(parse_cmd_line, port_valid) {
