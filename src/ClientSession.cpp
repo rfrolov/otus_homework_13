@@ -47,6 +47,7 @@ void ClientSession::on_read(const boost::system::error_code &err, size_t /*data_
     auto parser_result = query_parser::parse(data, m_future_result);
     if (!parser_result.empty()) {
         do_write("ERR " + parser_result + "\n");
+        do_read();
     } else {
         do_check_result();
     }
@@ -77,5 +78,5 @@ void ClientSession::on_check_result() {
 
 void ClientSession::do_write(std::string result) {
     std::vector<boost::asio::const_buffer> buffers{boost::asio::buffer(result)};
-    m_socket.async_write_some(buffers, [](boost::system::error_code /*error*/, std::size_t /*bytes*/) {});
+    m_socket.async_write_some(buffers, [](boost::system::error_code /*error*/, std::size_t /*bytes*/) { });
 }
