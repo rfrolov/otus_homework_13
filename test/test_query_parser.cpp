@@ -16,14 +16,14 @@ struct {
 } data;
 
 
-DataBase::future_result_t DataBase::insert(std::string &table_name, int id, std::string &name) {
+DataBase::future_result_t DataBase::insert(const std::string &table_name, int id, std::string &name) {
     data.table1_name = table_name;
     data.id = id;
     data.name = name;
     return DataBase::future_result_t{};
 }
 
-DataBase::future_result_t DataBase::truncate(std::string &table_name) {
+DataBase::future_result_t DataBase::truncate(const std::string &table_name) {
     data.table1_name = table_name;
     return DataBase::future_result_t{};
 }
